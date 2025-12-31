@@ -5,7 +5,7 @@ import { LISTENING_SESSION_1, LISTENING_SESSION_2, MULTIPLE_CHOICE_BANK } from '
 import QuestionCard from './components/QuestionCard';
 import AudioPlayer from './components/AudioPlayer';
 
-// Fisher-Yates shuffle algorithm for maximum randomness
+// Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -21,18 +21,14 @@ const App: React.FC = () => {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
-  // Key to trigger reshuffle without full page reload
   const [sessionKey, setSessionKey] = useState(0);
   
-  // Create a randomized bank for this specific session
   const shuffledMCBank = useMemo(() => {
     return shuffleArray(MULTIPLE_CHOICE_BANK);
   }, [sessionKey]); 
 
-  // Part 1 = Listening 1 questions (8)
   const part1Questions = LISTENING_SESSION_1.questions;
   
-  // Part 2 = Listening 2 (8) + Randomized MC Bank (30)
   const part2Questions = useMemo(() => [
     ...LISTENING_SESSION_2.questions, 
     ...shuffledMCBank
@@ -81,7 +77,6 @@ const App: React.FC = () => {
       setSelectedChoice(null);
       setShowFeedback(false);
     } else {
-      // Transition between sections
       if (currentStep === AppState.PART_1) {
         setCurrentStep(AppState.PART_2);
       } else if (currentStep === AppState.PART_2) {
@@ -123,7 +118,7 @@ const App: React.FC = () => {
                   <span className="text-3xl">🚀</span>
                   <div className="text-left">
                      <p className="font-black text-rose-800 text-sm uppercase">Part 2: Final Quiz</p>
-                     <p className="text-[10px] font-bold text-rose-600 uppercase">Article 2 + 30 Randomized MCQs</p>
+                     <p className="text-[10px] font-bold text-rose-600 uppercase">Article 2 + 45 Randomized MCQs</p>
                   </div>
                </div>
             </div>
@@ -132,7 +127,7 @@ const App: React.FC = () => {
               onClick={() => setCurrentStep(AppState.PART_1)}
               className="w-full h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl transition-all shadow-[0_10px_0_0_#1e1b4b] active:shadow-none active:translate-y-2 border-t-2 border-indigo-400"
             >
-              <span className="text-2xl font-black tracking-widest uppercase italic">GO GO GO!</span>
+              <span className="text-2xl font-black tracking-widest uppercase italic">START QUIZ!</span>
             </button>
           </div>
         </div>
@@ -160,7 +155,7 @@ const App: React.FC = () => {
             onClick={handleRetry}
             className="w-full h-20 bg-indigo-600 text-white font-black rounded-3xl shadow-[0_10px_0_0_#1e1b4b] active:translate-y-2 active:shadow-none transition-all text-2xl tracking-tighter italic border-t-2 border-indigo-400"
           >
-            LUYỆN TIẾP (AGAIN!)
+            PLAY AGAIN!
           </button>
           
           <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Questions will be reshuffled for you!</p>
@@ -171,7 +166,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] p-4 flex flex-col items-center">
-      {/* Dynamic Header */}
       <div className="w-full max-w-md flex justify-between items-center mb-6 mt-4">
         <div className="bg-white px-5 py-3 rounded-[1.5rem] shadow-sm border-b-4 border-slate-200 flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full animate-ping ${currentStep === AppState.PART_2 ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>
@@ -184,7 +178,6 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Progress Bar */}
       <div className="w-full max-w-md mb-8 px-1">
           <div className="w-full bg-slate-200 rounded-full h-4 overflow-hidden shadow-inner border border-slate-300 p-1">
               <div 
@@ -199,7 +192,6 @@ const App: React.FC = () => {
       </div>
 
       <div className="w-full max-w-md flex-1 overflow-y-auto pb-10 custom-scrollbar">
-        {/* Audio Player for Listening sections */}
         {((currentStep === AppState.PART_1 && currentQuestionIndex < part1Questions.length) || 
           (currentStep === AppState.PART_2 && currentQuestionIndex < LISTENING_SESSION_2.questions.length)) && (
           <div className="text-center mb-8 animate-in slide-in-from-top duration-500">
@@ -214,17 +206,16 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Header for MC Section within Part 2 */}
         {currentStep === AppState.PART_2 && currentQuestionIndex >= LISTENING_SESSION_2.questions.length && (
            <div className="text-center mb-8 animate-in slide-in-from-top duration-500">
-              <h2 className="text-3xl font-black text-rose-600 tracking-tight leading-none mb-2">30-ITEM RANDOM QUIZ</h2>
+              <h2 className="text-3xl font-black text-rose-600 tracking-tight leading-none mb-2">45-ITEM RANDOM QUIZ</h2>
               <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Questions are shuffled for you!</p>
            </div>
         )}
 
         {currentQuestion && (
           <QuestionCard 
-            key={`${sessionKey}-${currentQuestion.id}`} // Dynamic key ensures complete re-mount for new items
+            key={`${sessionKey}-${currentQuestion.id}`}
             question={currentQuestion}
             onSelect={handleChoiceSelect}
             selectedChoiceId={selectedChoice}

@@ -3,7 +3,6 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 /**
  * Generates single-speaker audio using Gemini 2.5 TTS model.
- * Note: Creating the instance inside the function ensures the latest API_KEY is used.
  */
 export async function generateTTS(text: string, voiceName: string = 'Kore'): Promise<Uint8Array | null> {
   try {
@@ -65,7 +64,6 @@ export async function generateMultiSpeakerTTS(text: string, speakers: { speaker:
   return null;
 }
 
-// Manual implementation of base64 decoding for raw bytes
 function decodeBase64(base64: string): Uint8Array {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -78,7 +76,7 @@ function decodeBase64(base64: string): Uint8Array {
 
 /**
  * Decodes raw PCM audio bytes into an AudioBuffer.
- * The API returns raw 16-bit PCM data.
+ * Fixed: Using data.byteOffset and length to ensure correct Int16 conversion.
  */
 export async function decodeAudioDataToBuffer(
   data: Uint8Array,
@@ -86,7 +84,8 @@ export async function decodeAudioDataToBuffer(
   sampleRate: number = 24000,
   numChannels: number = 1
 ): Promise<AudioBuffer> {
-  const dataInt16 = new Int16Array(data.buffer);
+  // Use byteOffset and length to handle cases where the buffer might be shared or unaligned
+  const dataInt16 = new Int16Array(data.buffer, data.byteOffset, data.byteLength / 2);
   const frameCount = dataInt16.length / numChannels;
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
 

@@ -32,6 +32,6 @@ export interface QuizSession {
 export enum AppState {
   WELCOME = 'WELCOME',
   PART_1 = 'PART_1', // Listening 1
-  PART_2 = 'PART_2', // Listening 2 + 30 MC Questions
+  PART_2 = 'PART_2', // Listening 2 + 45 MC Questions
   SUMMARY = 'SUMMARY'
 }
