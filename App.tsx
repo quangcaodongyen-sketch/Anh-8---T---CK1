@@ -96,6 +96,19 @@ const App: React.FC = () => {
     return () => window.removeEventListener('click', handleGlobalClick);
   }, [showFeedback, nextStep]);
 
+  // Determine if we should show the transcript
+  const showTranscript = useMemo(() => {
+    if (currentStep === AppState.PART_1) return true;
+    if (currentStep === AppState.PART_2 && currentQuestionIndex < LISTENING_SESSION_2.questions.length) return true;
+    return false;
+  }, [currentStep, currentQuestionIndex]);
+
+  const currentTranscript = useMemo(() => {
+    if (currentStep === AppState.PART_1) return LISTENING_SESSION_1.listeningScript;
+    if (currentStep === AppState.PART_2) return LISTENING_SESSION_2.listeningScript;
+    return null;
+  }, [currentStep]);
+
   if (currentStep === AppState.WELCOME) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-indigo-600">
@@ -199,7 +212,7 @@ const App: React.FC = () => {
                {currentStep === AppState.PART_1 ? "Part 1: The Five-colored Rice" : "Part 2: Future Schools"}
             </h2>
             <AudioPlayer 
-              script={currentStep === AppState.PART_1 ? LISTENING_SESSION_1.listeningScript || '' : LISTENING_SESSION_2.listeningScript || ''} 
+              script={currentTranscript || ''} 
               isMultiSpeaker={currentStep === AppState.PART_2}
               speakerConfigs={currentStep === AppState.PART_2 ? LISTENING_SESSION_2.speakerConfigs : undefined}
             />
@@ -222,6 +235,24 @@ const App: React.FC = () => {
             showFeedback={showFeedback}
             globalNumber={globalQuestionNumber}
           />
+        )}
+
+        {/* Transcript Section */}
+        {showTranscript && currentTranscript && (
+          <div className="mt-10 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 px-1">
+            <div className="bg-white/50 backdrop-blur-sm border-2 border-slate-200 rounded-[2.5rem] p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📖</span>
+                <h4 className="text-sm font-black text-slate-500 uppercase tracking-[0.2em]">Listening Transcript</h4>
+              </div>
+              <div className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap italic text-sm sm:text-base">
+                {currentTranscript}
+              </div>
+            </div>
+            <p className="text-center mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              Review the script to understand better
+            </p>
+          </div>
         )}
       </div>
       
