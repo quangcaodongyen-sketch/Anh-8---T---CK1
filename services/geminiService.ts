@@ -2,11 +2,26 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
 /**
- * Generates single-speaker audio using Gemini 2.5 TTS model.
+ * Lấy API Key và kiểm tra tính hợp lệ.
+ */
+function getApiKey(): string {
+  const key = process.env.API_KEY;
+  if (!key || key === "undefined") {
+    console.error("LỖI HỆ THỐNG: Thiếu API_KEY. Vui lòng kiểm tra cấu hình Environment Variables trên Vercel.");
+    return "";
+  }
+  return key;
+}
+
+/**
+ * Tạo âm thanh đơn người nói.
  */
 export async function generateTTS(text: string, voiceName: string = 'Kore'): Promise<Uint8Array | null> {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
@@ -25,17 +40,20 @@ export async function generateTTS(text: string, voiceName: string = 'Kore'): Pro
       return decodeBase64(base64Audio);
     }
   } catch (error) {
-    console.error("TTS Generation Error:", error);
+    console.error("Lỗi khi tạo TTS:", error);
   }
   return null;
 }
 
 /**
- * Generates multi-speaker audio conversation.
+ * Tạo âm thanh hội thoại nhiều người nói.
  */
 export async function generateMultiSpeakerTTS(text: string, speakers: { speaker: string; voice: string }[]): Promise<Uint8Array | null> {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
@@ -59,7 +77,7 @@ export async function generateMultiSpeakerTTS(text: string, speakers: { speaker:
       return decodeBase64(base64Audio);
     }
   } catch (error) {
-    console.error("Multi-speaker TTS Generation Error:", error);
+    console.error("Lỗi khi tạo Multi-speaker TTS:", error);
   }
   return null;
 }
@@ -75,8 +93,7 @@ function decodeBase64(base64: string): Uint8Array {
 }
 
 /**
- * Decodes raw PCM audio bytes into an AudioBuffer.
- * Fixed: Using data.byteOffset and length to ensure correct Int16 conversion.
+ * Giải mã dữ liệu PCM thô sang AudioBuffer.
  */
 export async function decodeAudioDataToBuffer(
   data: Uint8Array,
@@ -84,7 +101,6 @@ export async function decodeAudioDataToBuffer(
   sampleRate: number = 24000,
   numChannels: number = 1
 ): Promise<AudioBuffer> {
-  // Use byteOffset and length to handle cases where the buffer might be shared or unaligned
   const dataInt16 = new Int16Array(data.buffer, data.byteOffset, data.byteLength / 2);
   const frameCount = dataInt16.length / numChannels;
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
