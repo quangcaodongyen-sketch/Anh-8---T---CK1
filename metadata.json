@@ -1,0 +1,7 @@
+{
+  "name": "Anh 8 - T - CK1",
+  "description": "An interactive English quiz application for Grade 8 students covering Semester 1 topics with audio listening exercises and multiple-choice questions.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
