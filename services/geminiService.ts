@@ -3,8 +3,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 /**
  * Generates single-speaker audio using Gemini 2.5 TTS model.
- * Note: Creating the instance inside the function ensures the latest API_KEY is used,
- * which helps mitigate certain Proxy/500 errors in this environment.
+ * Note: Creating the instance inside the function ensures the latest API_KEY is used.
  */
 export async function generateTTS(text: string, voiceName: string = 'Kore'): Promise<Uint8Array | null> {
   try {
@@ -28,7 +27,6 @@ export async function generateTTS(text: string, voiceName: string = 'Kore'): Pro
     }
   } catch (error) {
     console.error("TTS Generation Error:", error);
-    // If the error message indicates a proxy/XHR issue, it might be a temporary network glitch.
   }
   return null;
 }
@@ -88,7 +86,6 @@ export async function decodeAudioDataToBuffer(
   sampleRate: number = 24000,
   numChannels: number = 1
 ): Promise<AudioBuffer> {
-  // Use a DataView or Int16Array to interpret the raw bytes as 16-bit integers
   const dataInt16 = new Int16Array(data.buffer);
   const frameCount = dataInt16.length / numChannels;
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
@@ -96,7 +93,6 @@ export async function decodeAudioDataToBuffer(
   for (let channel = 0; channel < numChannels; channel++) {
     const channelData = buffer.getChannelData(channel);
     for (let i = 0; i < frameCount; i++) {
-      // Convert 16-bit PCM (-32768 to 32767) to floating point (-1.0 to 1.0)
       channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
     }
   }

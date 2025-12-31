@@ -27,6 +27,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ script, isMultiSpeaker, speak
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
       }
 
+      // Resume context if suspended (common browser policy)
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
+
       let audioData;
       if (isMultiSpeaker && speakerConfigs) {
         audioData = await generateMultiSpeakerTTS(script, speakerConfigs);
@@ -43,9 +48,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ script, isMultiSpeaker, speak
         source.start();
         sourceRef.current = source;
         setPlaying(true);
+      } else {
+        alert("Unable to generate audio. Please check your internet connection.");
       }
     } catch (error) {
       console.error("Audio Playback Error:", error);
+      alert("An error occurred while playing audio.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +71,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ script, isMultiSpeaker, speak
         onClick={handlePlay}
         disabled={loading}
         className={`flex items-center space-x-2 px-8 py-4 rounded-2xl font-black transition-all shadow-[0_6px_0_0_rgba(0,0,0,0.1)] active:shadow-none active:translate-y-1 ${
-          playing ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          playing ? 'bg-red-500 text-white shadow-[0_6px_0_0_#991b1b]' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-[0_6px_0_0_#1e1b4b]'
         } disabled:opacity-50`}
       >
         {loading ? (
@@ -83,7 +91,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ script, isMultiSpeaker, speak
           </>
         )}
       </button>
-      <p className="mt-3 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Instruction: Listen ONCE only</p>
+      <p className="mt-3 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Tip: Listen carefully for details</p>
     </div>
   );
 };
