@@ -11,17 +11,17 @@ interface QuestionCardProps {
 }
 
 const CORRECT_PHRASES = [
-  "EXCELLENT! 🌟",
-  "YOU ARE A GENIUS! 🎆",
-  "PERFECT SCORE! 💯",
-  "KEEP IT UP! 🔥"
+  "XUẤT SẮC! 🌟",
+  "QUÁ GIỎI LUÔN! 🎆",
+  "CHÍNH XÁC! 💯",
+  "TIẾP TỤC PHÁT HUY! 🔥"
 ];
 
 const WRONG_PHRASES = [
-  "Oh no! Not this time! 😅",
-  "Oops! Look closely! 🔍",
-  "Almost had it! Keep going! 💪",
-  "Mistakes make us smarter! 🧠"
+  "Tiếc quá! Chưa đúng rồi! 😅",
+  "Xem kỹ lại đáp án nhé! 🔍",
+  "Gần đúng rồi, cố lên! 💪",
+  "Sai là để học tốt hơn! 🧠"
 ];
 
 const CHOICE_COLORS = [
@@ -31,11 +31,6 @@ const CHOICE_COLORS = [
   { border: 'border-rose-400', bg: 'bg-rose-50', text: 'text-rose-700' },
 ];
 
-/**
- * Enhanced sound synthesis.
- * 'correct' is a bright chime.
- * 'wrong' is now a 'hot' buzzer sound - loud, clear and dramatic.
- */
 const playProfessionalSound = (type: 'correct' | 'wrong') => {
   const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
   if (!AudioCtx) return;
@@ -47,7 +42,6 @@ const playProfessionalSound = (type: 'correct' | 'wrong') => {
     osc.type = waveType;
     osc.frequency.setValueAtTime(freq, startTime);
     
-    // For buzzer effects, we can slide the frequency down
     if (waveType === 'square') {
       osc.frequency.exponentialRampToValueAtTime(freq * 0.8, startTime + duration);
     }
@@ -63,16 +57,13 @@ const playProfessionalSound = (type: 'correct' | 'wrong') => {
 
   const now = ctx.currentTime;
   if (type === 'correct') {
-    // Bright, high-quality chime
-    playTone(523.25, now, 0.5, 0.15); // C5
-    playTone(659.25, now + 0.08, 0.5, 0.15); // E5
-    playTone(783.99, now + 0.16, 0.6, 0.15); // G5
+    playTone(523.25, now, 0.5, 0.15); 
+    playTone(659.25, now + 0.08, 0.5, 0.15); 
+    playTone(783.99, now + 0.16, 0.6, 0.15); 
   } else {
-    // "HOT" BUZZER SOUND: Dramatic, loud and dissonant
-    // Using two oscillators with square waves slightly detuned to create a thick 'WRONG' effect
-    playTone(180, now, 0.4, 0.25, 'square'); // Deep buzz
-    playTone(185, now + 0.02, 0.4, 0.20, 'square'); // Dissonant layer to make it "hot"
-    playTone(90, now, 0.5, 0.15, 'sawtooth'); // Extra grit
+    playTone(180, now, 0.4, 0.25, 'square'); 
+    playTone(185, now + 0.02, 0.4, 0.20, 'square'); 
+    playTone(90, now, 0.5, 0.15, 'sawtooth'); 
   }
 };
 
@@ -101,7 +92,6 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     <div className="w-full max-w-md mx-auto bg-white p-5 sm:p-8 rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.12)] border-b-[10px] border-gray-200 relative overflow-hidden transition-all">
       <div className="absolute top-0 left-0 w-full h-2.5 bg-gradient-to-r from-cyan-400 via-yellow-400 to-pink-500"></div>
       
-      {/* Celebration Overlay */}
       {showFeedback && isCorrect && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
             <div className="animate-score-pop text-8xl font-black text-yellow-500 drop-shadow-[0_10px_10px_rgba(0,0,0,0.15)]">
@@ -126,7 +116,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
       <div className="flex items-center gap-2 mb-5">
         <span className="bg-indigo-50 border border-indigo-100 px-4 py-1.5 rounded-2xl text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">
-            Step {globalNumber}
+            Câu hỏi {globalNumber}
         </span>
       </div>
 
@@ -140,7 +130,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           const isChoiceCorrect = choice.id === question.correctAnswer;
           const colors = CHOICE_COLORS[index % CHOICE_COLORS.length];
           
-          let choiceClasses = "w-full p-5 sm:p-6 text-left rounded-3xl border-2 transition-all duration-200 text-lg sm:text-xl font-bold flex items-center transform active:scale-[0.97] ";
+          let choiceClasses = "w-full p-5 sm:p-6 text-left rounded-3xl border-2 transition-all duration-200 text-lg sm:text-xl font-bold flex items-center transform active:scale-[0.97] relative ";
           
           if (showFeedback) {
             if (isChoiceCorrect) {
@@ -163,7 +153,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
               disabled={showFeedback}
               className={choiceClasses}
             >
-              <span className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mr-4 sm:mr-5 shadow-sm border-2 text-base sm:text-lg ${
+              <span className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mr-4 sm:mr-5 shadow-sm border-2 text-base sm:text-lg shrink-0 ${
                 showFeedback && isChoiceCorrect ? 'bg-emerald-500 text-white border-emerald-600' : 
                 showFeedback && isSelected && !isChoiceCorrect ? 'bg-rose-500 text-white border-rose-600' : 
                 isSelected ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-white border-inherit'
@@ -171,6 +161,17 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                 {choice.id}
               </span>
               <span className="flex-1 leading-tight">{choice.text}</span>
+              
+              {showFeedback && isChoiceCorrect && (
+                <span className="absolute -right-2 -top-2 bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-white uppercase flex items-center gap-1">
+                   ⭐ Đáp án đúng
+                </span>
+              )}
+              {showFeedback && isSelected && !isChoiceCorrect && (
+                <span className="absolute -right-2 -top-2 bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-white uppercase">
+                   ❌ Bạn đã chọn
+                </span>
+              )}
             </button>
           );
         })}
@@ -181,14 +182,22 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             <p className="text-3xl font-black mb-4 uppercase italic tracking-tighter drop-shadow-md">{feedbackPhrase}</p>
             
             <div className="bg-black/20 rounded-3xl p-5 mb-5 text-left border border-white/5 backdrop-blur-md">
-                <p className="text-[10px] font-black uppercase opacity-60 mb-1.5 tracking-widest text-indigo-100">Quick Lesson:</p>
+                <p className="text-[10px] font-black uppercase opacity-60 mb-1.5 tracking-widest text-indigo-100">Ghi nhớ nè:</p>
                 <p className="text-sm font-semibold leading-relaxed">
-                    {question.explanation || `The correct answer is ${question.correctAnswer}. Remember this structure!`}
+                    {question.explanation || `Đáp án đúng là lựa chọn ${question.correctAnswer}. Hãy để ý cấu trúc này nhé!`}
                 </p>
+                {!isCorrect && (
+                  <div className="mt-3 pt-3 border-t border-white/10 flex items-start gap-2">
+                    <span className="text-lg">💡</span>
+                    <p className="text-emerald-300 text-[11px] font-bold italic leading-tight">
+                      Bạn hãy nhìn lựa chọn được tô màu xanh có gắn sao ở trên để xem lại đáp án đúng nhé!
+                    </p>
+                  </div>
+                )}
             </div>
 
             <div className="inline-block px-6 py-2.5 bg-white/10 rounded-full text-[11px] font-black tracking-[0.2em] uppercase animate-pulse border border-white/10">
-                Tap anywhere to continue
+                Chạm bất kỳ đâu để tiếp tục
             </div>
         </div>
       )}
